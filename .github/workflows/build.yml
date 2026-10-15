@@ -7,7 +7,13 @@ on:
 
 jobs:
   build:
-    runs-on: macos-26
+    # Several Mac runner types, because hosted Apple-silicon capacity is
+    # sometimes unavailable; any one passing proves the code compiles.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +24,8 @@ jobs:
           echo "Using $XCODE"
           sudo xcode-select -s "$XCODE/Contents/Developer"
           xcodebuild -version
+          MAJOR=$(xcodebuild -version | head -1 | awk '{print $2}' | cut -d. -f1)
+          if [ "$MAJOR" -lt 26 ]; then echo "::error::Xcode 26 or later is required (found $MAJOR)"; exit 1; fi
 
       - name: Build for iPhone (no signing)
         run: |
@@ -47,5 +55,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs
+          name: logs-${{ matrix.os }}
           path: "*.log"
