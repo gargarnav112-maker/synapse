@@ -1,0 +1,51 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Using $XCODE"
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+
+      - name: Build for iPhone (no signing)
+        run: |
+          set -o pipefail
+          xcodebuild -project SynapseLab.xcodeproj -scheme SynapseLab \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee build.log
+          echo "Warnings:"; grep -E "warning:" build.log | sort -u || true
+
+      - name: Unit tests on a Simulator
+        run: |
+          set -o pipefail
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          d = json.load(sys.stdin)["devices"]
+          ios = sorted((k for k in d if "iOS" in k), key=lambda k: [int(x) for x in k.split("iOS-")[-1].split("-")])
+          for k in reversed(ios):
+              for dev in d[k]:
+                  if dev["name"].startswith("iPhone"):
+                      print(dev["udid"]); sys.exit()
+          ')
+          echo "Simulator: $UDID"
+          xcodebuild -project SynapseLab.xcodeproj -scheme SynapseLab \
+            -destination "id=$UDID" test 2>&1 | tee test.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: "*.log"

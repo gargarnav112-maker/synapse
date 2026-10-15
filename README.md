@@ -6,36 +6,28 @@ camera video. **Research prototype. Not for diagnosis or clinical decisions.**
 Built one milestone at a time from the "Synapse Prototype — Claude Code
 Prompt" spec. Current state: **Milestone 1 — Camera core.**
 
-## Add these files to your Xcode project
+## Open and run
 
-The files here were written without Xcode, so your first build is their
-first compile.
+1. **Get the code on your Mac.** Clone the repo, or use GitHub's Code › Download ZIP.
+2. **Open the project.** Double-click `SynapseLab.xcodeproj`. You need
+   Xcode 26 or later.
+3. **Set up signing.** Select the SynapseLab target › Signing & Capabilities,
+   pick your **Team** (your Apple ID), and if Xcode says the bundle ID is
+   taken, change it (e.g. `com.yourname.SynapseLab`).
+4. **Run on your phone.** Plug in your iPhone, select it as the run
+   destination, and press ⌘R. The first time, enable Developer Mode on the
+   phone (Settings › Privacy & Security) and trust your developer certificate
+   (Settings › General › VPN & Device Management).
 
-1. **Create the project.** If you haven't already: in Xcode, File › New ›
-   Project › iOS App, named **SynapseLab**, with Interface **SwiftUI**,
-   Language **Swift**, Storage **None**, and **Include Tests** checked.
-2. **Copy the files in.** Copy `SynapseLab/` from this repo over the
-   project's `SynapseLab/` folder, and `SynapseLabTests/FormatSelectorTests.swift`
-   into the project's test folder. Delete Xcode's template
-   `SynapseLabApp.swift` and `ContentView.swift`; this repo has its own
-   `App/SynapseLabApp.swift`. New Xcode projects use synchronised folders, so
-   the files appear in the build automatically.
-3. **Set the build settings** on the SynapseLab target:
-   - **iOS Deployment Target:** 18.0.
-   - **Swift Language Version:** Swift 6.
-   - **Strict Concurrency Checking:** Complete.
-   - **Default Actor Isolation:** MainActor is fine. The capture types are
-     marked `nonisolated`, which needs Swift 6.2 (Xcode 26).
-4. **Add the camera permission.** In the target's **Info** tab, add
-   *Privacy - Camera Usage Description* with this text: "SynapseLab films your
-   eye to measure how your pupil reacts to light."
-5. **Build** with ⌘B and fix or report every error and warning. From
-   Terminal:
-   ```
-   xcodebuild -project SynapseLab.xcodeproj -scheme SynapseLab \
-     -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
-   ```
-6. **Run the unit tests** with ⌘U on any Simulator.
+The project is already set up:
+- **Build settings:** iOS 18 deployment target, Swift 6, strict concurrency
+  Complete, Default Actor Isolation MainActor.
+- **Camera permission:** the usage text is in place.
+- **Files:** `SynapseLab/` and `SynapseLabTests/` are synchronised folders, so
+  any file added there is built automatically.
+
+Every push is also compiled and unit-tested on GitHub's macOS runners
+(`.github/workflows/build.yml`).
 
 ## Milestone 1 — what's in it
 
