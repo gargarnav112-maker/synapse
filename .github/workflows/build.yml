@@ -7,12 +7,12 @@ on:
 
 jobs:
   build:
-    # Several Mac runner types, because hosted Apple-silicon capacity is
-    # sometimes unavailable; any one passing proves the code compiles.
+    # Two Mac runner types, both with Xcode 26. macos-26 is left out: its
+    # hosted runners were never acquired (capacity), which cancels the run.
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-26, macos-15, macos-15-intel]
+        os: [macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
